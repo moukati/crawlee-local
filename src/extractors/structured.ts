@@ -49,7 +49,7 @@ function readNode(
     case "attribute":
       return attribute ? node.attr(attribute)?.trim() : undefined;
     case "number": {
-      const raw = node.text().replace(/[^0-9.\-]/g, "");
+      const raw = node.text().replace(/[^0-9.-]/g, "");
       const num = Number(raw);
       return Number.isFinite(num) ? num : undefined;
     }

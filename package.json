@@ -22,6 +22,8 @@
     "typecheck": "tsc --noEmit",
     "test": "vitest run tests/unit",
     "test:integration": "vitest run tests/integration",
+    "test:mcp": "vitest run tests/integration/mcp-protocol.test.ts",
+    "smoke:cli": "pnpm build && node dist/cli/index.js doctor && node dist/cli/index.js fetch --url https://example.com --strategy http",
     "test:all": "vitest run",
     "example:single-page": "tsx examples/single-page-extraction.mjs",
     "example:firecrawl-fallback": "tsx examples/firecrawl-fallback.mjs",
