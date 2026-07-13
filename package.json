@@ -1,0 +1,53 @@
+{
+  "name": "crawlee-local",
+  "version": "0.1.0",
+  "private": true,
+  "description": "Local Crawlee scraping engine with CLI and MCP for BusinessBrain agents",
+  "type": "module",
+  "packageManager": "pnpm@10.16.1",
+  "engines": {
+    "node": ">=20"
+  },
+  "bin": {
+    "crawlee-local": "./dist/cli/index.js"
+  },
+  "scripts": {
+    "build": "tsc -p tsconfig.json",
+    "dev": "tsx src/cli/index.ts",
+    "start:mcp": "node dist/mcp/server.js",
+    "dev:mcp": "tsx src/mcp/server.ts",
+    "setup": "pnpm install && pnpm exec playwright install chromium",
+    "doctor": "tsx src/cli/index.ts doctor",
+    "lint": "eslint src tests --max-warnings 0",
+    "typecheck": "tsc --noEmit",
+    "test": "vitest run tests/unit",
+    "test:integration": "vitest run tests/integration",
+    "test:all": "vitest run",
+    "example:single-page": "tsx examples/single-page-extraction.mjs",
+    "example:firecrawl-fallback": "tsx examples/firecrawl-fallback.mjs",
+    "fixture:serve": "tsx tests/fixtures/server.ts",
+    "runs:list": "tsx src/cli/index.ts runs list",
+    "prepublishOnly": "pnpm build"
+  },
+  "dependencies": {
+    "@modelcontextprotocol/sdk": "^1.29.0",
+    "cheerio": "1.0.0-rc.12",
+    "commander": "^13.1.0",
+    "crawlee": "3.17.0",
+    "playwright": "^1.51.0",
+    "robots-parser": "^3.0.1",
+    "turndown": "^7.2.0",
+    "zod": "^3.24.2"
+  },
+  "devDependencies": {
+    "@eslint/js": "^9.22.0",
+    "@types/node": "^22.13.10",
+    "@types/turndown": "^5.0.5",
+    "@typescript-eslint/eslint-plugin": "^8.26.1",
+    "@typescript-eslint/parser": "^8.26.1",
+    "eslint": "^9.22.0",
+    "tsx": "^4.19.3",
+    "typescript": "^5.8.2",
+    "vitest": "^3.0.9"
+  }
+}

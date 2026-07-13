@@ -1,0 +1,14 @@
+node_modules/
+dist/
+.storage/
+storage/
+.crawlee-local/
+.env
+.env.local
+*.log
+coverage/
+.DS_Store
+playwright-report/
+test-results/
+*.png
+!tests/fixtures/**/*.png
