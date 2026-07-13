@@ -1,5 +1,7 @@
 # Crawlee Local
 
+[![CI](https://github.com/moukati/crawlee-local/actions/workflows/ci.yml/badge.svg)](https://github.com/moukati/crawlee-local/actions/workflows/ci.yml)
+
 **Local web crawling for humans and AI agents** — HTTP and browser modes, structured extraction, safety limits, CLI + MCP.
 
 Use this when you want a **self-hosted, token-free** crawler you can run on your machine and hand to Cursor, Claude, Codex, or any MCP-compatible agent.
