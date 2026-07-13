@@ -1,6 +1,6 @@
-# Knowledge ingestion contract
+# Knowledge export format
 
-Crawlee Local produces normalized crawl output. Downstream BusinessBrain ingestion should handle chunking, embedding, indexing, and retention separately.
+Crawlee Local produces normalized crawl output. Downstream systems (RAG pipelines, vector DBs, note apps) handle chunking, embedding, and retention separately.
 
 ## Example record
 
@@ -16,19 +16,25 @@ Crawlee Local produces normalized crawl output. Downstream BusinessBrain ingesti
   "crawler": "crawlee",
   "strategy": "http",
   "entity": { "type": "company", "name": "Example" },
-  "tags": ["pricing", "competitor-research"],
+  "tags": ["pricing", "research"],
   "provenance": { "runId": "...", "parentUrl": "..." }
 }
 ```
 
 ## Generate from a run
 
-Use `exportKnowledgeRecords(result)` in `src/storage/run-store.ts` or read `pages.jsonl` from the run directory.
+**In code:**
 
-## Ingestion responsibilities (outside Crawlee)
+```javascript
+import { exportKnowledgeRecords, loadRunResult } from "crawlee-local";
+```
 
-- source attribution and licensing review
-- chunking and metadata enrichment
-- duplicate detection against existing brain docs
-- embedding / vector index updates
-- retention and deletion policy
+Or read `pages.jsonl` from the run directory (`storage.runDirectory` in the result JSON).
+
+## Downstream responsibilities (outside this repo)
+
+- Source attribution and licensing review
+- Chunking and metadata enrichment
+- Duplicate detection
+- Embedding / vector index updates
+- Retention and deletion policy

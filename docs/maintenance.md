@@ -17,29 +17,24 @@ pnpm exec playwright install chromium
 pnpm doctor
 ```
 
-## Run fixture suite
+## Run the test suite
 
 ```bash
-pnpm test:integration
+pnpm lint && pnpm typecheck && pnpm test:all && pnpm test:mcp
 ```
 
 ## Storage cleanup
 
 ```bash
-pnpm dev runs clean --older-than 30
+node dist/cli/index.js runs clean --older-than 30
 ```
 
-## Update Agent Skill
-
-After CLI/MCP changes, sync:
-
-- `D:/Codex/Crawlee/README.md`
-- BusinessBrain `.agents/skills/crawlee/SKILL.md`
-- `.brain/07_agents/asset-index.md` + `ASSETS.md`
+Or delete `~/.crawlee-local/storage/runs/` manually.
 
 ## Optional future adapters
 
 - Apify Actor deployment
 - Stagehand (`CRAWLEE_STAGEHAND_ENABLED`)
-- Firecrawl/Exa orchestration helpers
 - Scheduled crawls and change monitoring
+
+See [architecture.md](./architecture.md).

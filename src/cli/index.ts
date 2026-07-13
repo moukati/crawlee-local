@@ -15,7 +15,7 @@ const program = new Command();
 
 program
   .name("crawlee-local")
-  .description("Local Crawlee scraping engine for BusinessBrain agents")
+  .description("Local Crawlee scraping engine for humans and AI agents")
   .version("0.1.0");
 
 program

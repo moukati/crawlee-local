@@ -1,40 +1,48 @@
 # Decision matrix
 
-Canonical copy for agents also lives in BusinessBrain at `.brain/07_agents/crawlee-decision-matrix.md`.
+When should you use Crawlee Local vs other tools?
 
 ## API first
 
-Use official APIs when they expose the required public data reliably.
+Use an **official API** when the target service exposes the data you need reliably and usage is permitted.
 
-## Exa
+## Search / discovery
 
-Use for web search, source discovery, semantic ranking, and finding URLs before extraction.
+Use a **search or semantic discovery API** (Exa, Serp, etc.) when you need to find URLs or sources. Crawlee Local is **not** a search engine.
 
-## Firecrawl
+## Managed single-page extraction
 
-Use for known public URLs needing clean markdown when managed extraction is fast and sufficient.
+Use a **managed scraper** (Firecrawl, Bright Data scrape API, etc.) when:
+
+- You have a known public URL
+- You want clean markdown quickly
+- The site works well with that service
+- No custom traversal or browser interaction is needed
 
 ## Crawlee Local
 
 Use when:
 
-- Firecrawl fails, times out, or returns incomplete content
-- recursive same-domain crawl with strict budgets is required
-- JavaScript rendering or screenshots are needed
-- deterministic structured extraction must be tested locally
-- downloads or local retention are required
+- A managed scraper failed, timed out, or returned incomplete content
+- You need **local execution** (no API tokens for crawling itself)
+- **Recursive** same-domain crawl with strict budgets
+- **JavaScript rendering** or screenshots
+- **Deterministic CSS-schema** extraction you can test locally
+- **Public file downloads** with local retention
+- You want **full control** over retries, storage, and crawl logic
 
-## Do not use Crawlee
+## Do not use Crawlee Local
 
-- pure source discovery (use Exa/search)
-- bypassing login, CAPTCHA, or paywalls
-- tasks without clear URL scope and objective
+- Pure source discovery (use search)
+- Bypassing login, CAPTCHA, or paywalls
+- Tasks without a clear URL scope and objective
+- Crawling when an official API already solves the task
 
-## Strategy selection
+## Strategy selection (within Crawlee Local)
 
-1. HTTP (`CheerioCrawler`) first in `auto` mode
-2. Browser (`PlaywrightCrawler`) only when quality checks fail or browser features are requested
-3. Report fallback reasons in run metadata
+1. **`http`** or **`auto`** first — CheerioCrawler, fast and cheap
+2. **`browser`** only when JS rendering is required or auto quality checks fail
+3. Always record fallback reasons from the result JSON
 
 ## Cost model
 
@@ -42,4 +50,4 @@ Use when:
 |------|------|
 | HTTP | Low CPU/network |
 | Browser | Higher memory/CPU; keep concurrency low |
-| Managed (Firecrawl) | API credits; prefer when sufficient |
+| Managed APIs | Per-request credits; use when sufficient |

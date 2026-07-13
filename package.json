@@ -1,8 +1,22 @@
 {
   "name": "crawlee-local",
   "version": "0.1.0",
-  "private": true,
-  "description": "Local Crawlee scraping engine with CLI and MCP for BusinessBrain agents",
+  "description": "Local Crawlee scraping engine with CLI and MCP for humans and AI agents",
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/moukati/crawlee-local.git"
+  },
+  "keywords": [
+    "crawlee",
+    "web-scraping",
+    "crawler",
+    "playwright",
+    "mcp",
+    "model-context-protocol",
+    "ai-agents",
+    "local-scraping"
+  ],
   "type": "module",
   "packageManager": "pnpm@10.16.1",
   "engines": {

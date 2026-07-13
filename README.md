@@ -1,105 +1,207 @@
 # Crawlee Local
 
-Local Crawlee scraping engine with CLI and MCP interfaces for BusinessBrain agents.
+**Local web crawling for humans and AI agents** — HTTP and browser modes, structured extraction, safety limits, CLI + MCP.
 
-## Purpose
+Use this when you want a **self-hosted, token-free** crawler you can run on your machine and hand to Cursor, Claude, Codex, or any MCP-compatible agent.
 
-Crawlee Local is the controlled, on-machine crawler in the research stack:
+Built on [Crawlee](https://crawlee.dev/) 3.x + Playwright. No Apify Cloud required.
 
-- **Exa** — discovery and semantic search
-- **Firecrawl** — managed markdown extraction when it works well
-- **Crawlee Local** — recursive crawls, browser rendering, structured extraction, downloads, and fallback when managed tools fail
+---
+
+## Why this exists
+
+| Need | Use |
+|------|-----|
+| Search / discover URLs | A search API (Exa, Serp, etc.) — **not** this tool |
+| One page → clean markdown | A managed scraper (Firecrawl, etc.) if it works for your site |
+| **Recursive crawl, JS pages, custom extraction, local runs** | **Crawlee Local** |
+
+Crawlee Local is the **controlled local layer**: same-domain crawls with budgets, robots checks, HTTP-first with automatic browser fallback, and normalized JSON results.
+
+---
 
 ## Quick start
 
+**Requirements:** Node.js 20+, pnpm (or npm), ~500 MB for Chromium (browser mode).
+
 ```bash
+git clone https://github.com/moukati/crawlee-local.git
+cd crawlee-local
 pnpm install
-pnpm setup
-pnpm doctor
-pnpm example:single-page
+pnpm setup          # installs Playwright Chromium
+pnpm doctor         # verify install
+pnpm build
 ```
 
-## CLI
+Fetch a page:
+
+```bash
+node dist/cli/index.js fetch --url "https://example.com" --strategy auto
+```
+
+Or during development:
 
 ```bash
 pnpm dev fetch --url "https://example.com"
-pnpm dev crawl --url "https://example.com" --max-pages 20 --max-depth 1
-pnpm dev extract --url "https://example.com/pricing" --schema ./schemas/pricing-page.json
-pnpm dev sitemap --url "https://example.com/sitemap.xml"
-pnpm dev download --url "https://example.com/report.txt"
-pnpm dev screenshot --url "https://example.com"
-pnpm dev runs list
-pnpm dev runs inspect <run-id>
 ```
 
-After build:
+---
+
+## Documentation
+
+| Doc | Audience | Contents |
+|-----|----------|----------|
+| **[AGENTS.md](./AGENTS.md)** | AI agents | When to use, MCP tools, CLI, safety, result format — **start here if you are an agent** |
+| [docs/getting-started.md](./docs/getting-started.md) | Humans | Install, first crawl, inspect results |
+| [docs/mcp-setup.md](./docs/mcp-setup.md) | Humans | Cursor, Claude Desktop, generic MCP clients |
+| [docs/agent-runbook.md](./docs/agent-runbook.md) | Agents / power users | Planning crawls, budgets, debugging |
+| [docs/decision-matrix.md](./docs/decision-matrix.md) | Everyone | When to use this vs search APIs vs managed scrapers |
+| [docs/security-and-ethics.md](./docs/security-and-ethics.md) | Everyone | Robots, limits, what not to crawl |
+| [docs/architecture.md](./docs/architecture.md) | Contributors | Internals overview |
+
+---
+
+## CLI reference
 
 ```bash
-pnpm build
+# Health check
 node dist/cli/index.js doctor
+
+# Single page (auto = HTTP first, browser fallback if needed)
+node dist/cli/index.js fetch --url "https://example.com" --strategy auto
+
+# Recursive crawl (same domain, strict limits)
+node dist/cli/index.js crawl --url "https://example.com" --max-pages 20 --max-depth 1
+
+# Structured extraction with CSS schema
+node dist/cli/index.js extract --url "https://example.com/pricing" --schema ./schemas/pricing-page.json
+
+# Sitemap discovery
+node dist/cli/index.js sitemap --url "https://example.com/sitemap.xml"
+
+# Download a public file
+node dist/cli/index.js download --url "https://example.com/report.pdf"
+
+# Screenshot (browser mode)
+node dist/cli/index.js screenshot --url "https://example.com"
+
+# Inspect past runs
+node dist/cli/index.js runs list
+node dist/cli/index.js runs inspect <run-id>
 ```
 
-## MCP (Cursor)
+All commands return a normalized **JSON** `CrawlRunResult` to stdout. Logs go to stderr.
 
-Add to your Cursor MCP config (project or user):
+---
+
+## MCP (for AI agents)
+
+Seven tools over stdio MCP:
+
+| Tool | Purpose |
+|------|---------|
+| `crawlee_health` | Install status, versions, storage path |
+| `crawlee_fetch` | Single-page fetch/extract |
+| `crawlee_crawl` | Multi-page crawl with limits |
+| `crawlee_extract` | CSS-schema structured extraction |
+| `crawlee_sitemap` | Parse sitemap.xml |
+| `crawlee_download` | Download public files locally |
+| `crawlee_run_status` | Load a prior run by ID |
+
+**Cursor** — copy [`.cursor/mcp.json`](./.cursor/mcp.json) or add:
 
 ```json
 {
   "mcpServers": {
     "crawlee-local": {
       "command": "node",
-      "args": ["D:/Codex/Crawlee/dist/mcp/server.js"],
-      "cwd": "D:/Codex/Crawlee"
+      "args": ["dist/mcp/server.js"],
+      "cwd": "/absolute/path/to/crawlee-local"
     }
   }
 }
 ```
 
-Development entry:
+Run `pnpm build` first. Full setup: [docs/mcp-setup.md](./docs/mcp-setup.md).
 
-```json
-{
-  "mcpServers": {
-    "crawlee-local": {
-      "command": "pnpm",
-      "args": ["dev:mcp"],
-      "cwd": "D:/Codex/Crawlee"
-    }
-  }
-}
-```
+**Give your agent this repo:** point it at `AGENTS.md` or say *"Read https://github.com/moukati/crawlee-local/blob/main/AGENTS.md and use the MCP tools."*
 
-Tools: `crawlee_health`, `crawlee_fetch`, `crawlee_crawl`, `crawlee_extract`, `crawlee_sitemap`, `crawlee_download`, `crawlee_run_status`.
+---
+
+## Crawler strategies
+
+| Strategy | Engine | When |
+|----------|--------|------|
+| `http` | CheerioCrawler | Static HTML, docs, blogs |
+| `browser` | PlaywrightCrawler | JS-rendered pages, screenshots |
+| `auto` | HTTP → browser fallback | Default; falls back only when quality checks fail |
+
+Fallback reasons are included in every result (`strategy.fallbackReasons`).
+
+---
+
+## Default safety limits
+
+- **20 pages**, **depth 1**, same-domain unless you expand `allowedDomains`
+- Robots.txt evaluated by default
+- Auth/checkout/admin paths blocked
+- Response and file size caps
+- No CAPTCHA, login, or paywall bypass
+
+See [docs/security-and-ethics.md](./docs/security-and-ethics.md).
+
+---
 
 ## Result format
 
-All operations return a normalized `CrawlRunResult` JSON object with:
+Every run returns `CrawlRunResult` JSON:
 
-- run metadata and strategy decision (including fallback reasons)
-- page-level text/markdown/metadata/links/extracted fields
-- errors and local storage paths
-
-See `docs/architecture.md` and `src/core/result-schema.ts`.
-
-## Safety
-
-Conservative defaults: 20 pages, depth 1, same-domain crawling, robots evaluation, blocked auth/checkout paths, size limits, no CAPTCHA/login bypass.
-
-Read `docs/security-and-ethics.md` before production crawls.
-
-## Tests
-
-```bash
-pnpm test
-pnpm test:integration
-pnpm build
-pnpm doctor
+```json
+{
+  "runId": "uuid",
+  "status": "completed",
+  "strategy": {
+    "requestedStrategy": "auto",
+    "selectedStrategy": "http",
+    "fallbackOccurred": false,
+    "fallbackReasons": []
+  },
+  "pages": [{ "title": "...", "text": "...", "markdown": "...", "links": {} }],
+  "storage": { "runDirectory": "~/.crawlee-local/storage/runs/<runId>" }
+}
 ```
 
-## BusinessBrain
+Runs are persisted under `~/.crawlee-local/storage/runs/` with `result.json`, `summary.md`, and `pages.jsonl`.
 
-Canonical decision rules live in BusinessBrain:
+---
 
-- `.brain/07_agents/crawlee-decision-matrix.md`
-- `.cursor/rules/crawlee-usage.mdc`
-- `.agents/skills/crawlee/SKILL.md`
+## Development
+
+```bash
+pnpm lint
+pnpm typecheck
+pnpm test              # unit
+pnpm test:integration  # HTTP + browser + fixture server
+pnpm test:mcp          # protocol-level MCP client test
+pnpm smoke:cli         # build + doctor + live fetch
+```
+
+---
+
+## Examples
+
+- [examples/single-page-extraction.mjs](./examples/single-page-extraction.mjs) — programmatic fetch
+- [examples/firecrawl-fallback.mjs](./examples/firecrawl-fallback.mjs) — quality-check then local fallback pattern
+- [schemas/pricing-page.json](./schemas/pricing-page.json) — structured extraction schema
+
+---
+
+## License
+
+[MIT](./LICENSE)
+
+---
+
+## Credits
+
+Built with [Crawlee](https://crawlee.dev/) by Apify, [Playwright](https://playwright.dev/), and the [Model Context Protocol](https://modelcontextprotocol.io/).
